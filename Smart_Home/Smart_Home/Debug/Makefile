@@ -36,6 +36,7 @@ SUBDIRS :=  \
 ../APP \
 ../HAL \
 ../HAL/LCD \
+../HAL/EEPROM \
 ../MCAL \
 ../LIB \
 ../FreeRTOS \
@@ -54,6 +55,7 @@ C_SRCS +=  \
 ../FreeRTOS/port.c \
 ../FreeRTOS/queue.c \
 ../FreeRTOS/tasks.c \
+../HAL/EEPROM/EXT_EEPROM_prog.c \
 ../HAL/LCD/LCD_prog.c \
 ../MCAL/ADC/ADC_prog.c \
 ../MCAL/DIO/DIO_prog.c \
@@ -75,6 +77,7 @@ FreeRTOS/list.o \
 FreeRTOS/port.o \
 FreeRTOS/queue.o \
 FreeRTOS/tasks.o \
+HAL/EEPROM/EXT_EEPROM_prog.o \
 HAL/LCD/LCD_prog.o \
 MCAL/ADC/ADC_prog.o \
 MCAL/DIO/DIO_prog.o \
@@ -89,6 +92,7 @@ FreeRTOS/list.o \
 FreeRTOS/port.o \
 FreeRTOS/queue.o \
 FreeRTOS/tasks.o \
+HAL/EEPROM/EXT_EEPROM_prog.o \
 HAL/LCD/LCD_prog.o \
 MCAL/ADC/ADC_prog.o \
 MCAL/DIO/DIO_prog.o \
@@ -103,6 +107,7 @@ FreeRTOS/list.d \
 FreeRTOS/port.d \
 FreeRTOS/queue.d \
 FreeRTOS/tasks.d \
+HAL/EEPROM/EXT_EEPROM_prog.d \
 HAL/LCD/LCD_prog.d \
 MCAL/ADC/ADC_prog.d \
 MCAL/DIO/DIO_prog.d \
@@ -117,6 +122,7 @@ FreeRTOS/list.d \
 FreeRTOS/port.d \
 FreeRTOS/queue.d \
 FreeRTOS/tasks.d \
+HAL/EEPROM/EXT_EEPROM_prog.d \
 HAL/LCD/LCD_prog.d \
 MCAL/ADC/ADC_prog.d \
 MCAL/DIO/DIO_prog.d \
@@ -124,9 +130,9 @@ MCAL/GI/GI_prog.d \
 MCAL/TIMER0/TIMER0_prog.d \
 MCAL/UART/UART_prog.d
 
-OUTPUT_FILE_PATH +=RTOS_Driven_Smart_Home.elf
+OUTPUT_FILE_PATH +=Smart_Home.elf
 
-OUTPUT_FILE_PATH_AS_ARGS +=RTOS_Driven_Smart_Home.elf
+OUTPUT_FILE_PATH_AS_ARGS +=Smart_Home.elf
 
 ADDITIONAL_DEPENDENCIES:=
 
@@ -174,6 +180,13 @@ FreeRTOS/queue.o: ../FreeRTOS/queue.c
 	
 
 FreeRTOS/tasks.o: ../FreeRTOS/tasks.c
+	@echo Building file: $<
+	@echo Invoking: AVR/GNU C Compiler : 5.4.0
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega32 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega32" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
+	@echo Finished building: $<
+	
+
+HAL/EEPROM/EXT_EEPROM_prog.o: ../HAL/EEPROM/EXT_EEPROM_prog.c
 	@echo Building file: $<
 	@echo Invoking: AVR/GNU C Compiler : 5.4.0
 	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE)  -x c -funsigned-char -funsigned-bitfields -DDEBUG  -I"C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\include"  -Og -ffunction-sections -fdata-sections -fpack-struct -fshort-enums -g2 -Wall -mmcu=atmega32 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega32" -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)"   -o "$@" "$<" 
@@ -248,13 +261,13 @@ all: $(OUTPUT_FILE_PATH) $(ADDITIONAL_DEPENDENCIES)
 $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP) $(LINKER_SCRIPT_DEP)
 	@echo Building target: $@
 	@echo Invoking: AVR/GNU Linker : 5.4.0
-	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="RTOS_Driven_Smart_Home.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -mmcu=atmega32 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega32"  
+	$(QUOTE)C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-gcc.exe$(QUOTE) -o$(OUTPUT_FILE_PATH_AS_ARGS) $(OBJS_AS_ARGS) $(USER_OBJS) $(LIBS) -Wl,-Map="Smart_Home.map" -Wl,--start-group -Wl,-lm  -Wl,--end-group -Wl,--gc-sections -mmcu=atmega32 -B "C:\Program Files (x86)\Atmel\Studio\7.0\Packs\atmel\ATmega_DFP\1.7.374\gcc\dev\atmega32"  
 	@echo Finished building target: $@
-	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures  "RTOS_Driven_Smart_Home.elf" "RTOS_Driven_Smart_Home.hex"
-	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -j .eeprom  --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0  --no-change-warnings -O ihex "RTOS_Driven_Smart_Home.elf" "RTOS_Driven_Smart_Home.eep" || exit 0
-	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objdump.exe" -h -S "RTOS_Driven_Smart_Home.elf" > "RTOS_Driven_Smart_Home.lss"
-	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "RTOS_Driven_Smart_Home.elf" "RTOS_Driven_Smart_Home.srec"
-	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe" "RTOS_Driven_Smart_Home.elf"
+	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O ihex -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures  "Smart_Home.elf" "Smart_Home.hex"
+	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -j .eeprom  --set-section-flags=.eeprom=alloc,load --change-section-lma .eeprom=0  --no-change-warnings -O ihex "Smart_Home.elf" "Smart_Home.eep" || exit 0
+	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objdump.exe" -h -S "Smart_Home.elf" > "Smart_Home.lss"
+	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-objcopy.exe" -O srec -R .eeprom -R .fuse -R .lock -R .signature -R .user_signatures "Smart_Home.elf" "Smart_Home.srec"
+	"C:\Program Files (x86)\Atmel\Studio\7.0\toolchain\avr8\avr8-gnu-toolchain\bin\avr-size.exe" "Smart_Home.elf"
 	
 	
 
@@ -266,5 +279,5 @@ $(OUTPUT_FILE_PATH): $(OBJS) $(USER_OBJS) $(OUTPUT_FILE_DEP) $(LIB_DEP) $(LINKER
 clean:
 	-$(RM) $(OBJS_AS_ARGS) $(EXECUTABLES)  
 	-$(RM) $(C_DEPS_AS_ARGS)   
-	rm -rf "RTOS_Driven_Smart_Home.elf" "RTOS_Driven_Smart_Home.a" "RTOS_Driven_Smart_Home.hex" "RTOS_Driven_Smart_Home.lss" "RTOS_Driven_Smart_Home.eep" "RTOS_Driven_Smart_Home.map" "RTOS_Driven_Smart_Home.srec" "RTOS_Driven_Smart_Home.usersignatures"
+	rm -rf "Smart_Home.elf" "Smart_Home.a" "Smart_Home.hex" "Smart_Home.lss" "Smart_Home.eep" "Smart_Home.map" "Smart_Home.srec" "Smart_Home.usersignatures"
 	

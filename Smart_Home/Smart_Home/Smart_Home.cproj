@@ -183,6 +183,15 @@
     <Compile Include="FreeRTOS\timers.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="HAL\EEPROM\EEPROM_REG.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\EEPROM\EXT_EEPROM_interface.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\EEPROM\EXT_EEPROM_prog.c">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="HAL\LCD\LCD_config.h">
       <SubType>compile</SubType>
     </Compile>
@@ -248,6 +257,7 @@
     <Folder Include="APP" />
     <Folder Include="HAL" />
     <Folder Include="HAL\LCD" />
+    <Folder Include="HAL\EEPROM" />
     <Folder Include="MCAL" />
     <Folder Include="LIB" />
     <Folder Include="FreeRTOS" />

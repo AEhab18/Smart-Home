@@ -14,6 +14,8 @@ FreeRTOS\queue.c
 
 FreeRTOS\tasks.c
 
+HAL\EEPROM\EXT_EEPROM_prog.c
+
 HAL\LCD\LCD_prog.c
 
 MCAL\ADC\ADC_prog.c

@@ -22,6 +22,7 @@
 #include "../FreeRTOS/task.h"
 #include "../FreeRTOS/semphr.h"
 #include "../FreeRTOS//queue.h"
+#include "../HAL/EEPROM/EXT_EEPROM_interface.h"
 
 //-------------------------------------------------------------
 
@@ -40,14 +41,13 @@ QueueHandle_t Queue2;
 u8 PassCorrect = 0 ;
 u8 F = 0;
 //3175
-u8 correctPassword[4] = {'1', '8', '5', '2'};
-u8 enteredPassword[4];
+
 u8 passwordIndex = 0;
 
 //-------------------------------------------------------------
 //-------------------------------------------------------------
 void LM35(void){
-	u16 adc = 0 ;
+	f32 adc = 0 ;
 	f32 temp = 0 ;
 	
 	while (1)
@@ -55,7 +55,7 @@ void LM35(void){
 		if (xSemaphoreTake( LCD, 100 ) == HIGH && PassCorrect)
 		{
 			adc = ADC_u16ReadChannel(ADC_0) ;
-			temp = (f32) adc*500/1024 ;
+			temp = adc*500/1024 ;
 			xQueueSend( Queue1, &temp, 100 );
 			
 			LCD_voidGotoxy(0, 1);
@@ -69,34 +69,55 @@ void LM35(void){
 	}
 }
 //-------------------------------------------------------------
-void Terminal(void)
-{
-	u8 val;
-	u8 passwordCorrect = 0;
+void Terminal(void) {
+	u8 enteredPassword[4];
+	u8 passwordIndex = 0;
+	u8 loginRole = 0;
+   
 
-	while (1)
-	{
-		if (xSemaphoreTake(LCD, 100) == pdTRUE)
-		{
-			val = UART_u8RX();
-			enteredPassword[passwordIndex++] = val;
-
-			if (passwordIndex >= 4)
-			{
-				passwordIndex = 0;
-
-				if (memcmp(enteredPassword, correctPassword, 4) == 0) passwordCorrect = 1;
-				else passwordCorrect = 0;
+	while (1) {
+		// Check if semaphore is available
+		if (xSemaphoreTake(LCD, 100) == pdTRUE) {
+			// Receive password from UART
+			UART_SendString((u8 *)"\nEnter Password:");
+			while (passwordIndex < 4) {
+				enteredPassword[passwordIndex++] = UART_ReceiveChar();
 				
-				xQueueSend(Queue2, &passwordCorrect, 100);
-				
-				vTaskSuspend(NULL);
 			}
+			passwordIndex = 0;
+
+			// Check the login role
+			//loginRole = 2;
+			loginRole = VerifyAdminOrUser(enteredPassword);
+			DebugAdminPassword();
+
+			if (loginRole == 1) {
+				// Admin mode
+				LCD_voidGotoxy(0, 0);
+				LCD_voidSendString("ADMIN MODE");
+				AdminCommands(); // Call admin commands function
+				
+				} else if (loginRole == 2) {
+				// User mode
+				LCD_voidGotoxy(0, 0);
+				LCD_voidSendString("USER MODE");
+				PassCorrect = 1;
+				xQueueSend(Queue2, &PassCorrect, 100);
+				vTaskSuspend(NULL);
+				
+				} else {
+				// Invalid password
+				LCD_voidGotoxy(0, 0);
+				LCD_voidSendNumber(loginRole);
+				//LCD_voidSendString("Wrong Password");
+			}
+
+			// Release semaphore
+			xSemaphoreGive(LCD);
 		}
-		xSemaphoreGive(LCD);
-		
 	}
 }
+
 
 //-------------------------------------------------------------
 void Screen(void)
@@ -114,7 +135,7 @@ void Screen(void)
 				if (result == 1)
 				{
 					PassCorrect = 1;
-					DIO_voidSetPinVal(DIO_PORTC, DIO_PIN0, HIGH);
+					DIO_voidSetPinVal(DIO_PORTD, DIO_PIN4, HIGH);
 
 					LCD_voidGotoxy(0, 0);
 					LCD_voidSendString("WELCOME  ");
@@ -126,7 +147,7 @@ void Screen(void)
 					LCD_voidGotoxy(0, 1);
 					LCD_voidSendString("               ");
 
-					DIO_voidSetPinVal(DIO_PORTC, DIO_PIN1, HIGH);
+					DIO_voidSetPinVal(DIO_PORTD, DIO_PIN5, HIGH);
 				}
 			}
 			xSemaphoreGive(LCD);
@@ -255,10 +276,12 @@ int main(void)
 	xTaskCreate(LDR		, "LDR"		, 100, NULL, 3, NULL);
 	
 	//Initialization of Peripherals
-	//GI_voidEnable();
-	UART_voidInit();
+	GI_voidEnable();
+	UART_Init(9600);
 	LCD_voidInit();
 	ADC_voidInit();
+	TWI_Init();
+	WriteAdminPassword();
 	
 	// Create Semaphore
 	LCD = xSemaphoreCreateBinary();
@@ -269,8 +292,8 @@ int main(void)
 	Queue2 = xQueueCreate( 1, sizeof( u8  ) );
 	
 	// Start Code
-	LCD_voidGotoxy(0, 0);
-	LCD_voidSendString("SAMO 3LEEEKO");
+	//LCD_voidGotoxy(0, 0);
+	//LCD_voidSendString("");
 	
 	LCD_voidGotoxy(0, 1);
 	LCD_voidSendString("ENTER PASSWORD!");
